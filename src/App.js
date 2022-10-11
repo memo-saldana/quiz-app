@@ -1,8 +1,10 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, Fragment, useCallback } from 'react';
 import ProgressBar from './ProgressBar';
 import Question from './Question';
 import './App.css';
 import { Input } from '@mui/material';
+import template from './result';
+import axios from 'axios';
 
 function App({questions}) {
   const [questionIndex, setQuestionIndex] = useState(null)
@@ -12,28 +14,38 @@ function App({questions}) {
   const [studentName, setStudentName] = useState('')
   const [studentPhone, setStudentPhone] = useState('')
   const [studentEmail, setStudentEmail] = useState('')
+
+  const totalPoints = useCallback(
+    () => questions.map(question => question.points).reduce((prev, curr) => prev + curr), 
+  [questions])
   
   useEffect(() => {
   	setAnswerStatus(null)
   }, [questionIndex])
-  
-  useEffect(() => {
-  	if (answerStatus) {
-			setCorrectAnswerCount(count => count + 1)
-		}
-  }, [answerStatus])
-
   const onNextClick = () => {
-  	if (questionIndex === questions.length - 1) {
-      //TODO: Send email
-    	setQuizStatus(2)
+    if(quizStatus === 0){ // If on initial form, start quiz at question 0
+      setQuestionIndex(0)
+      setQuizStatus(1)
+      return
+    }
+    if (questionIndex === questions.length - 1) {
+      // This is done because state is not updated instantaneously
+      const correctPoints = answerStatus? correctAnswerCount + questions[questionIndex].points : correctAnswerCount;
+      setQuizStatus(2)
+      // Send email
+      const data = template(studentName, correctPoints, studentPhone)
+      axios.post("https://30xxlqi9c8.execute-api.us-west-2.amazonaws.com/Prod/send", {
+        toEmails: [studentEmail],
+        subject: "SQ Academy Diagnostic Test Results",
+        message: data
+      }).then(resp => console.log(resp))
+      .catch(err => console.error(err))
     } else {
-      if(quizStatus === 0) {
-        setQuizStatus(1)
-      }
-
     	setQuestionIndex(questionIndex == null ? 0 : questionIndex + 1)
 		}
+    if (answerStatus) {
+      setCorrectAnswerCount(count => count + questions[questionIndex].points)
+    }
   }
 
   
@@ -71,7 +83,7 @@ function App({questions}) {
        />
        {answerStatus != null && (
          <div>
-           <div className="answerStatus">{!!answerStatus ? "Correct! :)" : "Your answer was incorrect :("}</div>
+           {/* <div className="answerStatus">{!!answerStatus ? "Correct! :)" : "Your answer was incorrect :("}</div> */}
            <button className="next" onClick={onNextClick}>
            {questionIndex === questions.length - 1 ? "See results of this quiz" : "Next Question ->"}
            </button>
@@ -84,7 +96,7 @@ function App({questions}) {
       <Fragment>
         <h1>Quiz complete!</h1>
         <p>Thanks {studentName} for completing the test!</p>
-        <p>You answered {correctAnswerCount} questions correctly (out of a total {questions.length} questions)</p>
+        <p>You got a {correctAnswerCount} (out of {totalPoints()} points)</p>
         <p>You will receive an email with these results, and someone will contact you shortly to inquire about your placement.</p>
       </Fragment>
     )
