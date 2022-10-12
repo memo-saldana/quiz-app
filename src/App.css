@@ -8,7 +8,7 @@ h1 {
 
 p {
   line-height: 1.5em;
-  margin: 0 0 6px 0;
+  margin: 0px 0 6px 0;
 }
 
 .quiz {
@@ -21,7 +21,7 @@ p {
   margin: auto;
 }
 
-button {
+button, input[type=submit] {
   background: #e8e8e8;
   border: 0;
   padding: 10px 20px;
@@ -36,7 +36,8 @@ button.next {
 }
 
 button.start,
-button.restart {
+button.restart,
+input[type=submit].start {
   margin-top: 20px;
 }
 
@@ -106,4 +107,9 @@ button.restart {
   font-size: 0.7em;
   position: absolute;
   z-index: 10;
+}
+
+label {
+  margin-bottom: 6px;
+  display: block
 }
