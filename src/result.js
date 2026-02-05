@@ -1,4 +1,4 @@
-const template = (name, score, phone) => `<style>
+const template = (name, score, phone, totalPoints) => `<style>
   html {
   font-family: sans-serif;
 }
@@ -98,5 +98,5 @@ button.restart {
   z-index: 10;
 }
 </style>
-<div id="root"><div class="quiz"><h1>Quiz complete!</h1><p>Thanks ${name} for completing the test!</p><p>You got a ${score} (out of 75 points)</p><p>You will receive an email with these results, and someone will contact you shortly to inquire about your placement. They can contact you through email or the phone number you provided (The phone you provided is ${phone}).</p></div></div>`
+<div id="root"><div class="quiz"><h1>Quiz complete!</h1><p>Thanks ${name} for completing the test!</p><p>You got a ${score} (out of ${totalPoints} points)</p><p>You will receive an email with these results, and someone will contact you shortly to inquire about your placement. They can contact you through email or the phone number you provided (The phone you provided is ${phone}).</p></div></div>`;
 export default template;

@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, useCallback } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import ProgressBar from "./ProgressBar";
 import Question from "./Question";
 import "./App.css";
@@ -21,7 +21,7 @@ function App({ questions }) {
     formState: { errors },
   } = useForm();
 
-  const totalPoints = useCallback(
+  const totalPoints = useMemo(
     () =>
       questions
         .map((question) => question.points)
@@ -49,7 +49,12 @@ function App({ questions }) {
         : correctAnswerCount;
       setQuizStatus(2);
       // Send email
-      const data = template(studentName, correctPoints, studentPhone);
+      const data = template(
+        studentName,
+        correctPoints,
+        studentPhone,
+        totalPoints
+      );
       axios
         .post(
           "https://5jvbzyxfgm2u5gmy6nk7ycu4me0bakjx.lambda-url.us-east-2.on.aws",
@@ -168,7 +173,7 @@ function App({ questions }) {
         <h1>Quiz complete!</h1>
         <p>Thanks {studentName} for completing the test!</p>
         <p>
-          You got a {correctAnswerCount} (out of {totalPoints()} points)
+          You got a {correctAnswerCount} (out of {totalPoints} points)
         </p>
         <p>
           You will receive an email with these results, and someone will contact
